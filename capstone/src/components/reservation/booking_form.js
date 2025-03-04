@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Modal from 'react-modal';
+import { ToastContainer, toast } from 'react-toastify';
+import SavedBookings from "./saved_bookings";
 
 const submitAPI = function (formData) {
     return true;
@@ -14,11 +16,11 @@ export default function BookingForm({ availableTimes, dispatch }) {
     // console.log("available times: " + availableTimes);
     const today = new Date().toISOString().split("T")[0];
 
-
     const [date, setDate] = useState(today);
     const [time, setTime] = useState("17:00");
-    const [guests, setGuests] = useState(0);
+    const [guests, setGuests] = useState(2);
     const [occation, setOccation] = useState("Birthday");
+    const [savedBookings, setSavedBookings] = useState([{}]);
 
     const openModal = (e) => {
         e.preventDefault();
@@ -33,17 +35,16 @@ export default function BookingForm({ availableTimes, dispatch }) {
 
         const success = await submitAPI(formData);
         if (success) {
-            alert("Reservation confirmed!");
+            setSavedBookings([...savedBookings, formData]);
+            toast("Booking saved");
         } else {
-            alert("Failed to reserve the table. Please try again.");
+            toast("Booking failed");
         }
     };
 
     const closeModal = () => {
         setIsOpen(false);
     };
-
-
 
     const handleGuestChange = (e) => {
         setGuests(e.target.value);
@@ -99,6 +100,7 @@ export default function BookingForm({ availableTimes, dispatch }) {
                     <button onClick={openModal} className="focus:outline-none text-black bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300  rounded-lg text-m px-5 py-2.5 me-2 mb-2 dark:focus:ring-yellow-900">Submit</button>
                 </form>
             </div>
+            <ToastContainer />
             <Modal
                 isOpen={modalIsOpen}
                 id="myModel"
@@ -131,6 +133,7 @@ export default function BookingForm({ availableTimes, dispatch }) {
                     <button onClick={acceptModal} className=" text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Book</button>
                 </div>
             </Modal>
+            <SavedBookings bookings={savedBookings} />
         </>
     )
 }
